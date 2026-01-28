@@ -44,7 +44,7 @@ A comprehensive daily planning and productivity application built with SwiftUI f
 
 ```mermaid
 graph TB
-    subgraph "UI Layer - SwiftUI Views"
+    subgraph UI["UI Layer - SwiftUI Views"]
         A[DailyPlannerApp]
         B[ContentView]
         C[HeaderView]
@@ -58,23 +58,23 @@ graph TB
         K[DrawingCanvasView]
     end
 
-    subgraph "State Management"
-        L[PlannerStore<br/>@ObservableObject]
+    subgraph STATE["State Management"]
+        L[PlannerStore]
         M[DayPlan Model]
         N[TaskItem Model]
         O[PriorityItem Model]
         P[HourlySlot Model]
     end
 
-    subgraph "Services Layer"
-        Q[DataStorageService<br/>Local JSON Persistence]
-        R[GoogleCalendarService<br/>OAuth2 & API]
-        S[NotificationService<br/>UNUserNotifications]
+    subgraph SERVICES["Services Layer"]
+        Q[DataStorageService]
+        R[GoogleCalendarService]
+        S[NotificationService]
     end
 
-    subgraph "Data Storage"
-        T[Documents/DailyPlanner/<br/>yyyy-MM-dd.json]
-        U[UserDefaults<br/>Auth Tokens]
+    subgraph DATA["Data Storage"]
+        T[JSON Files]
+        U[UserDefaults]
     end
 
     A --> B
