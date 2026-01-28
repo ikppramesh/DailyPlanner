@@ -1,0 +1,50 @@
+# Xcode
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+*.xcworkspace/*
+!*.xcworkspace/contents.xcworkspacedata
+!*.xcworkspace/xcshareddata/
+
+# User settings
+xcuserdata/
+
+# Build files
+build/
+DerivedData/
+*.build/
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Packages/
+Package.pins
+Package.resolved
+
+# Android
+DailyPlannerAndroid/app/build/
+DailyPlannerAndroid/build/
+DailyPlannerAndroid/local.properties
+DailyPlannerAndroid/.gradle/
+DailyPlannerAndroid/gradle/
+DailyPlannerAndroid/gradlew
+DailyPlannerAndroid/gradlew.bat
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Provisioning
+*.mobileprovision
+*.cer
+*.p12
+
+# Documentation that may change
+SYNC_GUIDE.md
