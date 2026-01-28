@@ -8,7 +8,8 @@ A comprehensive daily planning and productivity application built with SwiftUI f
 
 ## 📱 Screenshots
 
-*Daily planner interface with tasks, priorities, and hourly schedule*
+![Daily Planner Interface](App.jpeg)
+*Daily planner interface with tasks, priorities, hourly schedule, and habit tracking*
 
 ## ✨ Features
 
