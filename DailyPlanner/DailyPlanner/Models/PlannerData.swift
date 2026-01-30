@@ -236,6 +236,65 @@ class PlannerStore: ObservableObject {
             currentPlan = DayPlan(date: date)
         }
     }
+    
+    // Rollover incomplete tasks from previous dates to today
+    func rolloverIncompleteTasks() {
+        guard let storageService = storageService else { return }
+        
+        let today = Calendar.current.startOfDay(for: Date())
+        let savedDates = storageService.savedDates()
+        
+        // Collect all incomplete tasks from previous dates
+        var incompleteTasksToRollover: [TaskItem] = []
+        
+        for date in savedDates {
+            // Skip today and future dates
+            if date >= today { continue }
+            
+            guard let plan = storageService.load(for: date) else { continue }
+            
+            // Get incomplete tasks with text
+            let incompleteTasks = plan.tasks.filter { !$0.isCompleted && !$0.text.isEmpty }
+            incompleteTasksToRollover.append(contentsOf: incompleteTasks)
+        }
+        
+        // If there are incomplete tasks, add them to today
+        if !incompleteTasksToRollover.isEmpty {
+            // Load today's plan
+            if let todayPlan = storageService.load(for: today) {
+                var updatedPlan = todayPlan
+                
+                // Get existing task texts to avoid duplicates
+                let existingTaskTexts = Set(updatedPlan.tasks.map { $0.text.lowercased().trimmingCharacters(in: .whitespaces) })
+                
+                // Add incomplete tasks that don't already exist
+                for task in incompleteTasksToRollover {
+                    let taskTextLower = task.text.lowercased().trimmingCharacters(in: .whitespaces)
+                    if !existingTaskTexts.contains(taskTextLower) {
+                        // Create new task with new ID but same text
+                        updatedPlan.tasks.append(TaskItem(text: task.text, isCompleted: false))
+                    }
+                }
+                
+                // Save updated today's plan
+                storageService.save(plan: updatedPlan, for: today)
+                
+                // Reload if we're currently viewing today
+                if Calendar.current.isDate(selectedDate, inSameDayAs: today) {
+                    currentPlan = updatedPlan
+                }
+            } else {
+                // Today's plan doesn't exist yet, create it with rolled over tasks
+                var newPlan = DayPlan(date: today)
+                newPlan.tasks = incompleteTasksToRollover.map { TaskItem(text: $0.text, isCompleted: false) }
+                storageService.save(plan: newPlan, for: today)
+                
+                if Calendar.current.isDate(selectedDate, inSameDayAs: today) {
+                    currentPlan = newPlan
+                }
+            }
+        }
+    }
 
     func toggleHabit(_ habit: HabitType) {
         if currentPlan.completedHabits.contains(habit.rawValue) {
