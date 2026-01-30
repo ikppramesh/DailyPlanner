@@ -371,6 +371,40 @@ Ensure notifications are allowed
 - iPad and iPhone only (no macOS or Apple Watch app)
 - English language only
 
+## 📝 Changelog
+
+### Version 1.1.0 (January 30, 2026)
+**🔄 Task Rollover Feature**
+- Added automatic rollover of incomplete tasks to today's date
+- Tasks from previous dates automatically appear on current day when app opens
+- Only rolls over tasks with actual text content (ignores empty checkboxes)
+- Prevents duplicate tasks with case-insensitive matching
+- Rollover happens once per day on first app launch
+- Works across all devices (iPad Air, iPad mini, iPhone)
+
+**🐛 Bug Fixes**
+- Fixed empty checkbox rollover - now only moves tasks with text
+- Improved whitespace trimming for task text validation
+- Enhanced duplicate detection with proper text normalization
+
+### Version 1.0.0 (January 28, 2026)
+**🎉 Initial Release**
+- Complete daily planning interface with tasks, priorities, and hourly schedule
+- 17 customizable habits tracking
+- 5-level mood tracking system
+- PencilKit drawing and annotation support
+- Screenshot capture to Photos
+- Mini calendar navigation
+- Export/Import data functionality via AirDrop, Mail, Files
+- Hourly notifications (10 AM - 11 PM, Mon-Fri)
+- iPad optimized UI with 1.76x font scaling
+- iPhone optimized UI with keyboard dismissal
+- Dark mode support
+- Local JSON data persistence with atomic writes
+- Support for iPad Air 5, iPad mini 5, iPhone 15 Pro
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -405,7 +439,7 @@ For issues, questions, or suggestions:
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: January 28, 2026  
+**Version**: 1.1.0  
+**Last Updated**: January 30, 2026  
 **Minimum iOS**: 17.0  
 **Tested Devices**: iPad Air 5, iPad mini 5, iPhone 15 Pro
