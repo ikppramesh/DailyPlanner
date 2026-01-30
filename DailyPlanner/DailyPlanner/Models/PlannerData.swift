@@ -253,8 +253,10 @@ class PlannerStore: ObservableObject {
             
             guard let plan = storageService.load(for: date) else { continue }
             
-            // Get incomplete tasks with text
-            let incompleteTasks = plan.tasks.filter { !$0.isCompleted && !$0.text.isEmpty }
+            // Get incomplete tasks with text (non-empty after trimming whitespace)
+            let incompleteTasks = plan.tasks.filter { 
+                !$0.isCompleted && !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty 
+            }
             incompleteTasksToRollover.append(contentsOf: incompleteTasks)
         }
         
@@ -265,12 +267,12 @@ class PlannerStore: ObservableObject {
                 var updatedPlan = todayPlan
                 
                 // Get existing task texts to avoid duplicates
-                let existingTaskTexts = Set(updatedPlan.tasks.map { $0.text.lowercased().trimmingCharacters(in: .whitespaces) })
+                let existingTaskTexts = Set(updatedPlan.tasks.map { $0.text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) })
                 
                 // Add incomplete tasks that don't already exist
                 for task in incompleteTasksToRollover {
-                    let taskTextLower = task.text.lowercased().trimmingCharacters(in: .whitespaces)
-                    if !existingTaskTexts.contains(taskTextLower) {
+                    let taskTextLower = task.text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !taskTextLower.isEmpty && !existingTaskTexts.contains(taskTextLower) {
                         // Create new task with new ID but same text
                         updatedPlan.tasks.append(TaskItem(text: task.text, isCompleted: false))
                     }
@@ -286,7 +288,10 @@ class PlannerStore: ObservableObject {
             } else {
                 // Today's plan doesn't exist yet, create it with rolled over tasks
                 var newPlan = DayPlan(date: today)
-                newPlan.tasks = incompleteTasksToRollover.map { TaskItem(text: $0.text, isCompleted: false) }
+                // Only add tasks that have actual text content
+                newPlan.tasks = incompleteTasksToRollover
+                    .filter { !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+                    .map { TaskItem(text: $0.text, isCompleted: false) }
                 storageService.save(plan: newPlan, for: today)
                 
                 if Calendar.current.isDate(selectedDate, inSameDayAs: today) {
