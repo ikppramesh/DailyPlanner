@@ -26,7 +26,72 @@ class PlannerViewModel(application: Application) : AndroidViewModel(application)
             repository.plansFlow.collect { savedPlans ->
                 plans.clear()
                 plans.putAll(savedPlans)
+                
+                // Perform rollover on app launch
+                performRolloverIfNeeded()
             }
+        }
+    }
+    
+    private fun performRolloverIfNeeded() {
+        val today = LocalDate.now()
+        val prefs = getApplication<Application>().getSharedPreferences("daily_planner", android.content.Context.MODE_PRIVATE)
+        val lastRolloverDate = prefs.getString("last_rollover_date", null)?.let { LocalDate.parse(it) }
+        
+        // Only rollover once per day
+        if (lastRolloverDate == null || lastRolloverDate.isBefore(today)) {
+            rolloverIncompleteTasks()
+            prefs.edit().putString("last_rollover_date", today.toString()).apply()
+        }
+    }
+    
+    private fun rolloverIncompleteTasks() {
+        val today = LocalDate.now()
+        
+        // Collect all incomplete tasks from previous dates and deduplicate them
+        val uniqueTaskTexts = mutableSetOf<String>()
+        val incompleteTasksToRollover = mutableListOf<TaskItem>()
+        
+        // Iterate through all saved dates
+        for ((date, plan) in plans) {
+            // Skip today and future dates
+            if (!date.isBefore(today)) continue
+            
+            // Get incomplete tasks with text (non-empty after trimming)
+            val incompleteTasks = plan.tasks.filter {
+                !it.isCompleted && it.text.trim().isNotEmpty()
+            }
+            
+            // Add only unique tasks (case-insensitive)
+            for (task in incompleteTasks) {
+                val taskTextLower = task.text.lowercase().trim()
+                if (taskTextLower.isNotEmpty() && !uniqueTaskTexts.contains(taskTextLower)) {
+                    uniqueTaskTexts.add(taskTextLower)
+                    incompleteTasksToRollover.add(task)
+                }
+            }
+        }
+        
+        // If there are incomplete tasks, add them to today
+        if (incompleteTasksToRollover.isNotEmpty()) {
+            val todayPlan = plans.getOrPut(today) { DailyPlan(today) }
+            
+            // Get existing task texts to avoid duplicates
+            val existingTaskTexts = todayPlan.tasks.map { 
+                it.text.lowercase().trim() 
+            }.toSet()
+            
+            // Add incomplete tasks that don't already exist
+            for (task in incompleteTasksToRollover) {
+                val taskTextLower = task.text.lowercase().trim()
+                if (taskTextLower.isNotEmpty() && !existingTaskTexts.contains(taskTextLower)) {
+                    // Create new task with new ID but same text
+                    todayPlan.tasks.add(TaskItem(text = task.text, isCompleted = false))
+                }
+            }
+            
+            // Save updated plans
+            savePlans()
         }
     }
     
